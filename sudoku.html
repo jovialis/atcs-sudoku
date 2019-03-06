@@ -1,442 +1,446 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-	<head>
-		<meta charset="utf-8">
-		<link rel="stylesheet" href="sudoku.css">
-		<script type="text/javascript" src="sudoku.js"></script>
-		<title>Sudoku</title>
-	</head>
-	<body onload="setup()">
-		<div id="newPuzzleButton">
-			<button type="button" onclick="newPuzzle()">New puzzle</button>
-		</div>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="sudoku.css">
+	<script type="text/javascript" src="sudoku.js"></script>
+	<title>Sudoku</title>
+</head>
+<body onload="setup()">
+<div id="newPuzzleButton">
+	<button type="button" onclick="newPuzzle()">New puzzle</button>
+	<button type="button" onclick="checkPuzzle()">Check Solution</button>
+	<button type="button" onclick="solvePuzzle()">Solve Puzzle</button>
+</div>
 
+<div id="readout">
+</div>
 
-		<!-- Mostly should leave the rest of this HTML alone -->
-		<div id="sudokuBoard">
-		<table cellspacing="0" cellpadding="0">
+<!-- Mostly should leave the rest of this HTML alone -->
+<div id="sudokuBoard">
+	<table cellspacing="0" cellpadding="0">
 		<tr>
-		<td class="boardCellGroupA">
-		<table cellspacing="1" cellpadding="0">
-		<tr>
-		<td class="boardCell">
-		<div id="00" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="01" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="02" class="editValue">
-		</div>
-		</td>
+			<td class="boardCellGroupA">
+				<table cellspacing="1" cellpadding="0">
+					<tr>
+						<td class="boardCell">
+							<div id="00" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="01" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="02" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="10" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="11" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="12" class="staticValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="20" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="21" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="22" class="staticValue">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td class="boardCellGroupB">
+				<table cellspacing="1" cellpadding="0">
+					<tr>
+						<td class="boardCell">
+							<div id="03" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="04" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="05" class="staticValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="13" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="14" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="15" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="23" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="24" class="editValue">
+								<input/>
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="25" class="editValue">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td class="boardCellGroupA">
+				<table cellspacing="1" cellpadding="0">
+					<tr>
+						<td class="boardCell">
+							<div id="06" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="07" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="08" class="staticValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="16" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="17" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="18" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="26" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="27" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="28" class="staticValue">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
 		</tr>
 		<tr>
-		<td class="boardCell">
-		<div id="10" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="11" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="12" class="staticValue">
-		</div>
-		</td>
+			<td class="boardCellGroupB">
+				<table cellspacing="1" cellpadding="0">
+					<tr>
+						<td class="boardCell">
+							<div id="30" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="31" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="32" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="40" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="41" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="42" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="50" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="51" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="52" class="staticValue">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td class="boardCellGroupA">
+				<table cellspacing="1" cellpadding="0">
+					<tr>
+						<td class="boardCell">
+							<div id="33" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="34" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="35" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="43" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="44" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="45" class="staticValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="53" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="54" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="55" class="editValue">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td class="boardCellGroupB">
+				<table cellspacing="1" cellpadding="0">
+					<tr>
+						<td class="boardCell">
+							<div id="36" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="37" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="38" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="46" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="47" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="48" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="56" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="57" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="58" class="editValue">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
 		</tr>
 		<tr>
-		<td class="boardCell">
-		<div id="20" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="21" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="22" class="staticValue">
-		</div>
-		</td>
+			<td class="boardCellGroupA">
+				<table cellspacing="1" cellpadding="0">
+					<tr>
+						<td class="boardCell">
+							<div id="60" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="61" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="62" class="staticValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="70" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="71" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="72" class="staticValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="80" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="81" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="82" class="editValue">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td class="boardCellGroupB">
+				<table cellspacing="1" cellpadding="0">
+					<tr>
+						<td class="boardCell">
+							<div id="63" class="editValue error">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="64" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="65" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="73" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="74" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="75" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="83" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="84" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="85" class="editValue">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td class="boardCellGroupA">
+				<table cellspacing="1" cellpadding="0">
+					<tr>
+						<td class="boardCell">
+							<div id="66" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="67" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="68" class="staticValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="76" class="staticValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="77" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="78" class="editValue">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="boardCell">
+							<div id="86" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="87" class="editValue">
+							</div>
+						</td>
+						<td class="boardCell">
+							<div id="88" class="staticValue">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
 		</tr>
-		</table>
-		</td>
-		<td class="boardCellGroupB">
-		<table cellspacing="1" cellpadding="0">
-		<tr>
-		<td class="boardCell">
-		<div id="03" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="04" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="05" class="staticValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="13" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="14" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="15" class="editValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="23" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="24" class="editValue">
-		<input/>
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="25" class="editValue">
-		</div>
-		</td>
-		</tr>
-		</table>
-		</td>
-		<td class="boardCellGroupA">
-		<table cellspacing="1" cellpadding="0">
-		<tr>
-		<td class="boardCell">
-		<div id="06" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="07" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="08" class="staticValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="16" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="17" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="18" class="editValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="26" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="27" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="28" class="staticValue">
-		</div>
-		</td>
-		</tr>
-		</table>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCellGroupB">
-		<table cellspacing="1" cellpadding="0">
-		<tr>
-		<td class="boardCell">
-		<div id="30" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="31" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="32" class="editValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="40" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="41" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="42" class="editValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="50" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="51" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="52" class="staticValue">
-		</div>
-		</td>
-		</tr>
-		</table>
-		</td>
-		<td class="boardCellGroupA">
-		<table cellspacing="1" cellpadding="0">
-		<tr>
-		<td class="boardCell">
-		<div id="33" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="34" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="35" class="editValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="43" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="44" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="45" class="staticValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="53" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="54" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="55" class="editValue">
-		</div>
-		</td>
-		</tr>
-		</table>
-		</td>
-		<td class="boardCellGroupB">
-		<table cellspacing="1" cellpadding="0">
-		<tr>
-		<td class="boardCell">
-		<div id="36" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="37" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="38" class="editValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="46" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="47" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="48" class="editValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="56" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="57" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="58" class="editValue">
-		</div>
-		</td>
-		</tr>
-		</table>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCellGroupA">
-		<table cellspacing="1" cellpadding="0">
-		<tr>
-		<td class="boardCell">
-		<div id="60" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="61" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="62" class="staticValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="70" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="71" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="72" class="staticValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="80" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="81" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="82" class="editValue">
-		</div>
-		</td>
-		</tr>
-		</table>
-		</td>
-		<td class="boardCellGroupB">
-		<table cellspacing="1" cellpadding="0">
-		<tr>
-		<td class="boardCell">
-		<div id="63" class="editValue error">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="64" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="65" class="editValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="73" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="74" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="75" class="editValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="83" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="84" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="85" class="editValue">
-		</div>
-		</td>
-		</tr>
-		</table>
-		</td>
-		<td class="boardCellGroupA">
-		<table cellspacing="1" cellpadding="0">
-		<tr>
-		<td class="boardCell">
-		<div id="66" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="67" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="68" class="staticValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="76" class="staticValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="77" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="78" class="editValue">
-		</div>
-		</td>
-		</tr>
-		<tr>
-		<td class="boardCell">
-		<div id="86" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="87" class="editValue">
-		</div>
-		</td>
-		<td class="boardCell">
-		<div id="88" class="staticValue">
-		</div>
-		</td>
-		</tr>
-		</table>
-		</td>
-		</tr>
-		</table>
-		</div>
-	</body>
+	</table>
+</div>
+</body>
 </html>
