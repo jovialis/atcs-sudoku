@@ -8,9 +8,12 @@
 </head>
 <body onload="setup()">
 <div id="newPuzzleButton">
-	<button type="button" onclick="newPuzzle()">New puzzle</button>
+	<button type="button" onclick="nextPresetPuzzle()">New puzzle</button>
 	<button type="button" onclick="checkPuzzle()">Check Solution</button>
 	<button type="button" onclick="solvePuzzle()">Solve Puzzle</button>
+	<button type="button" onclick="nextGeneratedPuzzle(3)">Generate Level Three Difficulty</button>
+	<button type="button" onclick="nextGeneratedPuzzle(2)">Generate Level Two Difficulty</button>
+	<button type="button" onclick="nextGeneratedPuzzle(1)">Generate Level One Difficulty</button>
 </div>
 
 <div id="readout">

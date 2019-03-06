@@ -1,6 +1,8 @@
+let currentPuzzle;
+
 function setup() {
 	boardNum = 0; // set intial puzzle number
-	newPuzzle(); // render the puzzle
+	nextPresetPuzzle(); // render the puzzle
 
 	/* FOR TESTING PURPOSES */
 	var el = document.getElementById("00"); // get top right box
@@ -20,12 +22,56 @@ function setup() {
 	}
 }
 
-function newPuzzle() {
+function nextPresetPuzzle() {
 	// function to generate a new puzzle
-	renderBoard(boards[boardNum % boards.length]);
+	currentPuzzle = boards[boardNum % boards.length];
+
+	renderBoard(currentPuzzle);
 	boardNum++;
 
 	console.log('Loaded game board #' + boardNum + ':');
+	printPageValues();
+}
+
+// Diffulty level: 3 = most diffult, 1 = least
+function nextGeneratedPuzzle(difficultyLevel) {
+	// Normalize from [3] - [1] with three being easiest, one being hardest
+	const difficulty = 4 - Math.min(3, Math.max(1, difficultyLevel));
+	// Generate between eight and 24 numbers.
+	const numberOfNumbersToGenerate = 8 * difficulty;
+
+	// Generate blank puzzle
+	let newPuzzle = [];
+	for (let i = 0; i < 9; i++) {
+		let add = [];
+		for (let x = 0; x < 9; x++) {
+			add.push(0)
+		}
+		newPuzzle.push(add)
+	}
+
+	// Generate random numbers
+	for (let i = 0 ; i < numberOfNumbersToGenerate ; i++) {
+		// Generates list of number strings, sorts them randomly, returns them mapped to number.
+		const randomListOfPossibleValues = "123456789".split('').sort((a, b) => ((Math.random() * 2) - 1)).map(i => Number(i) );
+
+		// Generate random coords
+		const randomRow = Math.floor(Math.random() * 9);
+		const randomCol = Math.floor(Math.random() * 9);
+
+		// Find a random number that'll work at that position
+		for (const possibleVal of randomListOfPossibleValues) {
+			if (numberIsValidInPosition(newPuzzle, possibleVal, randomRow, randomCol)) {
+				newPuzzle[randomRow][randomCol] = possibleVal;
+				break;
+			}
+		}
+	}
+
+	currentPuzzle = newPuzzle;
+	renderBoard(currentPuzzle);
+
+	console.log('Loaded random game board.');
 	printPageValues();
 }
 
@@ -41,13 +87,13 @@ function checkPuzzle() {
 }
 
 function solvePuzzle() {
-	let curBoard = boards[boardNum % boards.length];
+	let curBoard = currentPuzzle;
 
 	// Clone board to solve
 	let startBoard = [];
 	for (const level of curBoard) {
 		let newLevel = [];
-		for (const element of level)  {
+		for (const element of level) {
 			newLevel.push(element);
 		}
 		startBoard.push(newLevel);
@@ -62,6 +108,7 @@ function solvePuzzle() {
 
 	}
 }
+
 
 var boardNum;// global variable
 var puzzle1 = [
