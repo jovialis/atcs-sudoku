@@ -6,7 +6,7 @@ mongoose.model('Session', new mongoose.Schema({
 		type: String,
 		default: uuid
 	},
-	useer: {
+	user: {
 		type: 'ObjectId',
 		ref: 'User',
 		required: true

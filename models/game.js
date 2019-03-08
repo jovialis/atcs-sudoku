@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
+const uuid = require('uuid/v3');
 
-mongoose.model('Game', new mongoose.Schema({
-	timestamp: {
-		type: Date,
-		default: Date
+const sessionSchema = new mongoose.Schema({
+	token: {
+		type: String,
+		default: uuid
 	},
 	user: {
 		type: 'ObjectId',
@@ -17,12 +18,26 @@ mongoose.model('Game', new mongoose.Schema({
 	},
 	start: {
 		type: Date,
-		required: true
+		default: Date
 	},
 	finish: {
 		type: Date,
-		default: Date
+		default: null,
+	},
+	completed: {
+		type: Boolean,
+		default: false
+	},
+	forfeited: {
+		type: Boolean,
+		default: false
+	},
+	attempts: {
+		type: Number,
+		default: 0
 	}
 }, {
-	collection: 'games'
-}));
+	collection: 'sessions'
+});
+
+mongoose.model('Game', sessionSchema);

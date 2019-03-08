@@ -32,7 +32,7 @@ router.use('/static', express.static(path.join(__dirname, 'public')));
 
 // Serve index file always
 router.get('*', (req, res) => {
-	res.sendfile(path.join(__dirname, 'public/index.html'));
+	res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 // Grab port and start listening
@@ -42,5 +42,8 @@ router.listen(port, () => {
 });
 
 function registerRoutes(router) {
+
 //	TODO: Register routes
+	require('./routes/puzzle').registerRoutes(router);
+
 }
