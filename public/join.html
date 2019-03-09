@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script type="application/javascript" src="/static/scripts/validateSession.js"></script>
+	<title>Join Sudoku Online</title>
+</head>
+<body>
+<h1>Join Sudoku Online</h1>
+<form id="create" onsubmit="createAccount(event)">
+	<input name="username" type="text" placeholder="Username" required>
+	<input name="password" type="password" placeholder="Password" required>
+	<input type="password" placeholder="Confirm Password" required>
+	<input type="submit" value="Create Account">
+</form>
+<script>
+	function createAccount(event) {
+		event.preventDefault();
+
+		const form = event.target;
+		const username = form.username.value;
+		const password = form.password.value;
+
+		axios.post('/user/account/create', {
+			username: username,
+			password: password
+		}).then(response => {
+			if (response.data.success === true) {
+				localStorage.setItem('username', response.data.user.username);
+				localStorage.setItem('name', response.data.user.name);
+
+				// Redirect to home
+				window.location.href = "/";
+			}
+		}).catch(error => {
+			console.log(error);
+		});
+	}
+</script>
+<!--Validate session then redirect if needed-->
+<script>validateSession('/', null);</script>
+</body>
+</html>

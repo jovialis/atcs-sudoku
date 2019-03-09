@@ -1,10 +1,14 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const expressSsl = require('express-sslify');
 const session = require('express-session');
-
 const path = require('path');
 
+// Register mongoose models
+registerModels();
+
+// Setup server
 const router = express();
 
 // Redirect to HTTPS
@@ -24,16 +28,11 @@ router.use(session({
 	cookie: {secure: true}
 }));
 
-// Register all util routes
-registerRoutes(router);
-
 // Serve static files
 router.use('/static', express.static(path.join(__dirname, 'public')));
 
-// Serve index file always
-router.get('*', (req, res) => {
-	res.sendFile(path.join(__dirname, 'public/index.html'));
-});
+// Register all util routes
+registerRoutes(router);
 
 // Grab port and start listening
 const port = process.env.PORT || 3000;
@@ -43,7 +42,19 @@ router.listen(port, () => {
 
 function registerRoutes(router) {
 
-//	TODO: Register routes
+	require('./routes/pages').registerRoutes(router);
+	require('./routes/user').registerRoutes(router);
 	require('./routes/puzzle').registerRoutes(router);
+
+}
+
+function registerModels() {
+
+	mongoose.connect(process.env.MONGODB_URI);
+
+	require('./models/game');
+	require('./models/puzzle');
+	require('./models/session');
+	require('./models/user');
 
 }

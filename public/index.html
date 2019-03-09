@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<link rel="stylesheet" href="static/stylesheets/index.css">
-	<script type="text/javascript" src="static/scripts/sudoku.js"></script>
-	<title>Sudoku</title>
+	<link rel="stylesheet" href="/static/stylesheets/index.css">
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script type="application/javascript" src="/static/scripts/validateSession.js"></script>
+	<script type="text/javascript" src="/static/scripts/sudoku.js"></script>
+	<title>Play Sudoku</title>
 </head>
 <body onload="setup()">
 <div id="newPuzzleButton">
@@ -445,5 +447,7 @@
 		</tr>
 	</table>
 </div>
+// Validate session then
+<script>validateSession(null, '/account/login');</script>
 </body>
 </html>

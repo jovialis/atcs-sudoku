@@ -31,7 +31,7 @@ function generateNewGameForUser(user, difficultyLevel) {
 			try {
 				// Get all puzzles of this difficulty, then randomize their order
 				const availablePuzzles = await Puzzle.find({
-					difficulty: `${ difficultyLevel }`
+					difficulty: `${difficultyLevel}`
 				}).sort((a, b) => ((Math.random() * 2) - 1));
 
 				const completedPuzzles = await Game.find({
@@ -49,7 +49,9 @@ function generateNewGameForUser(user, difficultyLevel) {
 
 				// If we got here, none of the puzzles will work, as we've already completed them all. Thus, we have
 				// to generate one.
-				generate = true;
+				if (!puzzleDoc) {
+					generate = true;
+				}
 			} catch (error) {
 				reject(error);
 				return;
@@ -111,7 +113,7 @@ function generatePuzzle(difficultyLevel) {
 
 		const Puzzle = mongoose.model('Puzzle');
 		const puzzleDoc = new Puzzle({
-			difficulty: `${ difficultyLevel }`,
+			difficulty: `${difficultyLevel}`,
 			structure: newPuzzle
 		});
 

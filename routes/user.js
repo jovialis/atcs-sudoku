@@ -2,10 +2,13 @@ const controller = require('../controllers/user');
 
 module.exports.registerRoutes = (router) => {
 
-	// Validate the user's legacy token or generate a new one
-	router.post('/user/refresh', controller.routeAuthenticateUserToken);
+	// Check whether the user has a session
+	router.post('/user/validate', controller.routeValidateSession);
 
-	// Login with a user's PIN code
+	router.post('/user/account/create', controller.routeCreateUser);
+	router.post('/user/account/password', controller.routeChangeUserPassword);
+
 	router.post('/user/login', controller.routeLoginUser);
+	router.post('/user/logout', controller.routeLogoutUser);
 
 };
