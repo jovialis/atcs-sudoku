@@ -1,8 +1,12 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const expressSsl = require('express-sslify');
+
+const mongoose = require('mongoose');
+
 const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+
 const path = require('path');
 
 const production = process.env.PRODUCTION && process.env.PRODUCTION === 'true';
@@ -12,7 +16,7 @@ registerModels();
 
 // Setup server
 const router = express();
-router.disable('X-Powered-By');
+router.disable('x-powered-by');
 
 // Redirect to HTTPS
 if (production) {
@@ -26,8 +30,9 @@ router.use(bodyParser.json());
 // Session storage
 let sessionOptions = {
 	secret: process.env.SESSION_SECRET,
+	store: new MongoStore({ mongooseConnection: mongoose.connection }),
 	resave: false,
-	saveUninitialized: true,
+	saveUninitialized: true
 };
 
 if (production) {
@@ -65,7 +70,6 @@ function registerModels() {
 
 	require('./models/game');
 	require('./models/puzzle');
-	require('./models/session');
 	require('./models/user');
 
 }

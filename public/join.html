@@ -26,9 +26,6 @@
 			password: password
 		}).then(response => {
 			if (response.data.success === true) {
-				localStorage.setItem('username', response.data.user.username);
-				localStorage.setItem('name', response.data.user.name);
-
 				// Redirect to home
 				window.location.href = "/";
 			}
