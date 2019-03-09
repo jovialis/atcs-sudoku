@@ -5,14 +5,17 @@ const expressSsl = require('express-sslify');
 const session = require('express-session');
 const path = require('path');
 
+const production = process.env.PRODUCTION && process.env.PRODUCTION === 'true';
+
 // Register mongoose models
 registerModels();
 
 // Setup server
 const router = express();
+router.disable('X-Powered-By');
 
 // Redirect to HTTPS
-if (process.env.PRODUCTION && process.env.PRODUCTION === 'true') {
+if (production) {
 	router.use(expressSsl.HTTPS({trustProtoHeader: true}));
 }
 
@@ -21,12 +24,20 @@ router.use(bodyParser.urlencoded({extended: true}));
 router.use(bodyParser.json());
 
 // Session storage
-router.use(session({
+let sessionOptions = {
 	secret: process.env.SESSION_SECRET,
 	resave: false,
 	saveUninitialized: true,
-	cookie: {secure: true}
-}));
+};
+
+if (production) {
+	router.set('trust proxy', 1);
+
+	// HTTPS enabled
+	sessionOptions.cookie.secure = true // serve secure cookies
+}
+
+router.use(session(sessionOptions));
 
 // Serve static files
 router.use('/static', express.static(path.join(__dirname, 'public')));

@@ -13,7 +13,7 @@ module.exports.routeNextPuzzleForUser = (req, res) => {
 	}).catch(error => {
 		console.log(error);
 		res.status(500).send('An internal error occurred');
-	})
+	});
 };
 
 function generateNewGameForUser(user, difficultyLevel) {

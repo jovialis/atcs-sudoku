@@ -12,7 +12,7 @@ module.exports.routeLoginUser = (req, res) => {
 
 	const User = mongoose.model('User');
 	User.findOne({
-		username: username
+		username: username.toLowerCase()
 	}).then(doc => {
 		if (!doc) {
 			res.status(404).send({
@@ -26,7 +26,6 @@ module.exports.routeLoginUser = (req, res) => {
 			if (result === true) {
 				// Successfully authenticated. Time to set our session variable
 				req.session.user = doc;
-
 				res.json({
 					success: true,
 					user: {
@@ -36,7 +35,6 @@ module.exports.routeLoginUser = (req, res) => {
 				});
 			} else {
 				req.session.user = undefined;
-
 				res.status(401).json({
 					success: false
 				});
@@ -48,12 +46,6 @@ module.exports.routeLoginUser = (req, res) => {
 	}).catch(err => {
 		res.status(500).send('An internal error occurred');
 		console.log(err);
-	});
-};
-
-module.exports.routeValidateSession = (req, res) => {
-	res.json({
-		valid: req.session.user !== undefined
 	});
 };
 
@@ -123,7 +115,7 @@ module.exports.routeChangeUserPassword = (req, res) => {
 
 	const User = mongoose.model('User');
 	User.findOne({
-		username: username
+		username: username.toLowerCase()
 	}).then(doc => {
 		if (!doc) {
 			res.status(404).send({
@@ -143,7 +135,6 @@ module.exports.routeChangeUserPassword = (req, res) => {
 					doc.save().then(() => {
 						// Set the session user again so it has the proper pass hash.
 						req.session.user = doc;
-
 						res.json({
 							success: true,
 						});

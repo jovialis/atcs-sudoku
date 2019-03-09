@@ -1,21 +1,22 @@
 const path = require('path');
+const auth = require('../middlewares/auth');
 
 module.exports.registerRoutes = (router) => {
 
-	router.get('/account', (req, res) => {
+	router.get('/account', auth.redirectIfNoUser('/account/login'), (req, res) => {
 		res.sendFile(path.join(__dirname, '../public/account.html'));
 	});
 
-	router.get('/account/join', (req, res) => {
+	router.get('/account/join', auth.redirectIfUser('/account'), (req, res) => {
 		res.sendFile(path.join(__dirname, '../public/join.html'));
 	});
 
-	router.get('/account/login', (req, res) => {
+	router.get('/account/login', auth.redirectIfUser('/account'), (req, res) => {
 		res.sendFile(path.join(__dirname, '../public/login.html'));
 	});
 
 	// Serve index file in all other cases
-	router.get('*', (req, res) => {
+	router.get('*', auth.redirectIfNoUser('/account/login'), (req, res) => {
 		res.sendFile(path.join(__dirname, '../public/index.html'));
 	});
 

@@ -2,9 +2,20 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<title>Account</title>
 </head>
 <body>
-
+<button onclick="logoutUser(event)">Logout</button>
 </body>
+<script>
+	function logoutUser(event) {
+		event.preventDefault();
+
+		axios.post('/user/logout', {
+		}).then(() => {
+			window.location.href = "/account/login";
+		});
+	}
+</script>
 </html>
