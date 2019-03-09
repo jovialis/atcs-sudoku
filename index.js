@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const expressSsl = require('express-sslify');
+const cookieParser = require('cookie-parser');
 
 const mongoose = require('mongoose');
 

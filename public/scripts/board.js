@@ -4,8 +4,8 @@ const boardMount = document.getElementById("mount-puzzle");
 	// Setup table
 	const mainTable = document.createElement("table");
 	mainTable.setAttribute("id", "puzzle-board");
-    mainTable.setAttribute("cellspacing", "0");
-    mainTable.setAttribute("cellpadding", "0");
+	mainTable.setAttribute("cellspacing", "0");
+	mainTable.setAttribute("cellpadding", "0");
 	boardMount.appendChild(mainTable);
 
 	// Generate the three rows of big boxes
@@ -21,10 +21,10 @@ const boardMount = document.getElementById("mount-puzzle");
 
 			const groupTable = document.createElement("table");
 			// Assign either an A group or a B group, alternating
-			groupTable.setAttribute("class", `board-group board-group-${ ("ab".split('')[ ( (a * 3) + b ) % 2 ]) }`);
-			groupTable.setAttribute("id", `board-group-${ (a * 3) + b }`);
-            groupTable.setAttribute("cellspacing", "1");
-            groupTable.setAttribute("cellpadding", "0");
+			groupTable.setAttribute("class", `board-group board-group-${("ab".split('')[((a * 3) + b) % 2])}`);
+			groupTable.setAttribute("id", `board-group-${(a * 3) + b}`);
+			groupTable.setAttribute("cellspacing", "1");
+			groupTable.setAttribute("cellpadding", "0");
 			groupData.appendChild(groupTable);
 
 			// Rows within the big box
@@ -36,14 +36,118 @@ const boardMount = document.getElementById("mount-puzzle");
 				for (let y = 0; y < 3; y++) {
 					const boxData = document.createElement("td");
 					boxData.setAttribute("class", "board-cell");
-					boxData.setAttribute("id", `board-cell-${ (a * 3) + x }-${ (b * 3) + y }`);
+					boxData.setAttribute("id", `board-cell-${(a * 3) + x}-${(b * 3) + y}`);
 					boxRow.appendChild(boxData);
-                    
-                    const boxDiv = document.createElement("div");
-                    boxDiv.setAttribute("class", "cell-liner");
-                    boxData.appendChild(boxDiv);
+
+					const boxDiv = document.createElement("div");
+					boxDiv.setAttribute("class", "cell-liner");
+					boxData.appendChild(boxDiv);
 				}
 			}
 		}
 	}
 })();
+
+function boardOverlayStructure(original, overlay) {
+	for (let row = 0; row < original.length; row++) {
+		for (let col = 0; col < original[row].length; col++) {
+			const val = original[row][col];
+
+			// If the puzzle has a zero here, that's a user input field. Which means we should overlay a value.
+			const shouldOverlay = val === 0;
+			if (!shouldOverlay) {
+				continue;
+			}
+
+			const boxElement = document.getElementById(`board-cell-${row}-${col}`);
+			const liner = boxElement.getElementsByClassName("cell-liner")[0];
+
+			// Remove all existing children
+			for (const childNode of liner.childNodes) {
+				childNode.remove();
+			}
+
+			let valueWrapper = document.createElement("span");
+			valueWrapper.innerHTML = `${overlay[row][col]}`;
+			valueWrapper.setAttribute('class', 'value-container value-overlay');
+
+			liner.appendChild(valueWrapper);
+		}
+	}
+}
+
+function boardLoadStructure(structure) {
+	for (let row = 0; row < structure.length; row++) {
+		for (let col = 0; col < structure[row].length; col++) {
+			const val = structure[row][col];
+
+			const boxElement = document.getElementById(`board-cell-${row}-${col}`);
+			const liner = boxElement.getElementsByClassName("cell-liner")[0];
+
+			// Remove all existing children
+			for (const childNode of liner.childNodes) {
+				childNode.remove();
+			}
+
+			let valueWrapper;
+
+			if (val === 0) {
+				valueWrapper = document.createElement("input");
+				valueWrapper.setAttribute('onkeypress', 'preventLetterKeystroke(event)');
+				valueWrapper.setAttribute('onchange', 'preventLetterEntry(event)');
+				valueWrapper.setAttribute('maxlength', '1'); // fixes the length of the input to 1 character
+			} else {
+				valueWrapper = document.createElement("span");
+				valueWrapper.innerHTML = `${val}`;
+			}
+
+			valueWrapper.setAttribute('class', 'value-container');
+
+			liner.appendChild(valueWrapper);
+		}
+	}
+}
+
+function preventLetterKeystroke(event) {
+	/*
+	CREDIT: https://stackoverflow.com/questions/469357/html-text-input-allow-only-numeric-input
+	*/
+
+	var theEvent = event || window.event;
+
+	// Handle paste
+	if (theEvent.type === 'paste') {
+		key = theEvent.clipboardData.getData('text/plain');
+	} else {
+		// Handle key press
+		var key = theEvent.keyCode || theEvent.which;
+		key = String.fromCharCode(key);
+	}
+	var regex = /[1-9]|\./;
+	if (!regex.test(key)) {
+		theEvent.returnValue = false;
+		if (theEvent.preventDefault) theEvent.preventDefault();
+	}
+}
+
+function preventLetterEntry(event) {
+	const val = event.target.value;
+
+	if (!Number(val)) {
+		event.target.value = null;
+	}
+}
+
+function extractPageValues() {
+	let puzzle = [];
+	for (let rowI = 0; rowI < 9; rowI++) {
+		let row = [];
+		for (let colI = 0; colI < 9; colI++) {
+			// Grab the value for this index
+			const val = document.getElementById(`board-cell-${rowI}-${colI}`).getElementsByClassName('value-container')[0].innerHTML;
+			row.push(Number(val) ? Number(val) : 0);
+		}
+		puzzle.push(row);
+	}
+	return puzzle;
+}

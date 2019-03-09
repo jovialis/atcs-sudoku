@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
+const uuid = require('uuid/v4');
 
 const sessionSchema = new mongoose.Schema({
+	token: {
+		type: String,
+		default: uuid
+	},
 	user: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
@@ -32,7 +37,7 @@ const sessionSchema = new mongoose.Schema({
 		default: 0
 	}
 }, {
-	collection: 'sessions'
+	collection: 'games'
 });
 
 mongoose.model('Game', sessionSchema);

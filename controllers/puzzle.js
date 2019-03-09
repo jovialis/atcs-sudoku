@@ -6,15 +6,17 @@ module.exports.routeNextPuzzleForUser = (req, res) => {
 	const difficulty = req.body.difficulty ? req.body.difficulty : 1;
 
 	generateNewGameForUser(user, difficulty).then(puzzle => {
+		// Set session game
+		req.session.game = puzzle.game;
+		delete puzzle.game;
+
 		res.json({
-			puzzle: {
-				structure: puzzle.structure,
-				difficulty: Number(puzzle.difficulty)
-			}
+			// TODO: Leaderboard
+			puzzle: puzzle
 		});
 	}).catch(error => {
 		console.log(error);
-		res.status(500).send('An internal error occurred');
+		res.status(error.code ? error.code : 500).send(error.message ? error.message : 'An internal error occurred');
 	});
 };
 
@@ -74,7 +76,12 @@ function generateNewGameForUser(user, difficultyLevel) {
 			user: user._id,
 			puzzle: puzzleDoc._id,
 		}).then(game => {
-			resolve(puzzleDoc);
+			resolve({
+				game: game.token,
+				uid: puzzleDoc.uid,
+				difficulty: Number(puzzleDoc.difficulty),
+				structure: puzzleDoc.structure
+			});
 		}).catch(reject);
 	});
 }
@@ -127,43 +134,68 @@ function generatePuzzle(difficultyLevel) {
 	});
 }
 
-// TODO: Check the user's provided puzzle against the one in the database to prevent duping.
 module.exports.routeValidateSolution = (req, res) => {
-	const token = req.get('PuzzleToken');
+	const token = req.session.game;
 	const puzzle = req.body.puzzle;
 
 	validateSolution(token, puzzle).then(valid => {
-
+		res.json(valid);
 	}).catch(error => {
-		res.status(500).send(error);
+		console.log(error);
+		res.status(error.code ? error.code : 500).send(error.message ? error.message : 'An internal error occurred');
 	});
 };
 
-function validateSolution(puzzleToken, puzzle) {
+function validateSolution(gameToken, userSolution) {
 	return new Promise((resolve, reject) => {
-		if (!validatePuzzleDimensions(puzzle)) {
-			reject("Invalid puzzle dimensions provided");
+		if (!validatePuzzleDimensions(userSolution)) {
+			reject({
+				code: 400,
+				message: "Invalid puzzle dimensions provided"
+			});
 			return;
 		}
 
 		const Game = mongoose.model('Game');
 
 		Game.findOne({
-			token: puzzleToken
+			token: gameToken
 		}).populate('puzzle').populate('user').exec().then(doc => {
 			if (!doc) {
-				reject("Invalid puzzle token provided");
+				reject({
+					code: 400,
+					message: "Invalid token provided"
+				});
 				return;
 			}
+
+			if (doc.completed || doc.forfeited) {
+				reject({
+					message: "Puzzle already completed",
+					code: 409
+				});
+				return;
+			}
+
+			doc.attempts++;
 
 			const puzzle = doc.puzzle;
 			const structure = puzzle.structure;
 
-			doc.attempts++;
-
 			let completed = false;
 
-			if (validatePuzzleValues(structure)) {
+			// Copy original structure values back over to ensure that the client didn't artificially modify the
+			// puzzle's preset values.
+			for (let row = 0; row < structure.length; row++) {
+				for (let col = 0; col < structure[row].length; col++) {
+					const valAt = structure[row][col];
+					if (valAt !== 0) {
+						userSolution[row][col] = valAt;
+					}
+				}
+			}
+
+			if (validatePuzzleValues(userSolution)) {
 				doc.finish = new Date();
 				doc.completed = true;
 
@@ -171,8 +203,64 @@ function validateSolution(puzzleToken, puzzle) {
 			}
 
 			doc.save().then(() => {
-				resolve(completed);
+				resolve({
+					valid: completed,
+					attempts: doc.attempts
+				});
 			}).catch(reject);
+		}).catch(reject);
+	});
+}
+
+module.exports.routeForfeitPuzzle = (req, res) => {
+	const token = req.session.game;
+
+	forfeitPuzzle(token).then(result => {
+		res.json(result);
+	}).catch(error => {
+		console.log(error);
+		res.status(error.code ? error.code : 500).send(error.message ? error.message : 'An internal error occurred');
+	})
+};
+
+function forfeitPuzzle(gameToken) {
+	return new Promise((resolve, reject) => {
+		const Game = mongoose.model('Game');
+
+		Game.findOne({
+			token: gameToken
+		}).populate('puzzle').populate('user').exec().then(doc => {
+			if (!doc) {
+				reject({
+					code: 400,
+					message: "Invalid token provided"
+				});
+				return;
+			}
+
+			if (doc.completed || doc.forfeited) {
+				reject({
+					message: "Puzzle already completed",
+					code: 409
+				});
+				return;
+			}
+
+			doc.finish = new Date();
+			doc.forfeited = true;
+
+			const puzzle = doc.puzzle.structure;
+			generateSolution(puzzle, 0, 0);
+
+			doc.save().then(saved => {
+				resolve({
+					forfeited: true,
+					attempts: doc.attempts,
+					solution: puzzle,
+					time: (doc.finish - doc.start)
+					//	TODO: Return leaderboard
+				});
+			}).catch(reject)
 		}).catch(reject);
 	});
 }
