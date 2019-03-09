@@ -2,13 +2,15 @@ const mongoose = require('mongoose');
 const chanceToGenerateNewPuzzle = 0.4;
 
 module.exports.routeNextPuzzleForUser = (req, res) => {
-	const user = req.user;
-	const difficulty = req.body.difficulty;
+	const user = req.session.user;
+	const difficulty = req.body.difficulty ? req.body.difficulty : 1;
 
-	generateNewGameForUser(user, difficulty).then(game => {
-		// TODO: Serve leaderboard for this puzzle
+	generateNewGameForUser(user, difficulty).then(puzzle => {
 		res.json({
-			puzzle: game.puzzle
+			puzzle: {
+				structure: puzzle.structure,
+				difficulty: Number(puzzle.difficulty)
+			}
 		});
 	}).catch(error => {
 		console.log(error);
@@ -32,7 +34,7 @@ function generateNewGameForUser(user, difficultyLevel) {
 				// Get all puzzles of this difficulty, then randomize their order
 				const availablePuzzles = await Puzzle.find({
 					difficulty: `${difficultyLevel}`
-				}).sort((a, b) => ((Math.random() * 2) - 1));
+				}).sort(`${((Math.random() * 2) - 1)}`).exec();
 
 				const completedPuzzles = await Game.find({
 					user: user._id,
@@ -71,7 +73,9 @@ function generateNewGameForUser(user, difficultyLevel) {
 		Game.create({
 			user: user._id,
 			puzzle: puzzleDoc._id,
-		}).then(resolve).catch(reject);
+		}).then(game => {
+			resolve(puzzleDoc);
+		}).catch(reject);
 	});
 }
 

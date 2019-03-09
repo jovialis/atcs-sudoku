@@ -1,0 +1,74 @@
+#puzzle-board {
+	width: 426px;
+
+	border-spacing: 0;
+}
+
+#puzzle-board table {
+	border-spacing: 0;
+}
+
+#puzzle-board td {
+	padding: 0;
+}
+
+.board-group {
+	border-spacing: 0;
+}
+
+.board-group-a .board-cell {
+	background-color: #bce3fc;
+}
+
+.board-group-b .board-cell {
+	background-color: #e0cdb8;
+}
+
+.board-cell {
+	width: 44px;
+	height: 44px;
+
+	position: relative;
+
+	border: 1px solid black;
+}
+
+.board-cell .cell-liner {
+	/*    background-color: red;*/
+
+	height: 100%;
+	width: 100%;
+}
+
+.staticValue {
+	font-family: sans-serif, Segoe UI, Arial;
+	text-align: center;
+	vertical-align: middle;
+	font-size: 30px;
+}
+
+.staticValue, .editValue {
+	width: 42px;
+	height: 42px;
+	padding: 0px;
+	margin: 0px;
+	border: 1px solid;
+}
+
+.editValue:hover {
+	background: #a3b8d7;
+}
+
+.editValue input {
+	font-family: sans-serif, Segoe UI, Arial;
+	font-size: 30px;
+	width: 44px;
+	padding: 0px;
+	border: 0px;
+	background: none !important;
+	text-align: center;
+	vertical-align: middle;
+	position: relative;
+	left: -1px;
+	color: #63615e;
+}

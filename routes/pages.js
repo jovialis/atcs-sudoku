@@ -17,7 +17,7 @@ module.exports.registerRoutes = (router) => {
 
 	// Serve index file in all other cases
 	router.get('*', [auth.redirectIfNoUser('/account/login'), auth.userInfoCookies], (req, res) => {
-		res.sendFile(path.join(__dirname, '../public/index.html'));
+		res.sendFile(path.join(__dirname, '../public/game.html'));
 	});
 
 };

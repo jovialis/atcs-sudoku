@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="/static/stylesheets/board.css">
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+	<script src="/static/scripts/game.js"></script>
+	<title>Play Sudoku</title>
+	<style>
+		#container {
+			width: 70%;
+			position: relative;
+			margin: auto;
+		}
+	</style>
+</head>
+<body>
+<div id="newPuzzleButton">
+	<button type="button" onclick="nextPresetPuzzle()">New puzzle</button>
+	<button type="button" onclick="checkPuzzle()">Check Solution</button>
+	<button type="button" onclick="solvePuzzle()">Solve Puzzle</button>
+	<button type="button" onclick="nextGeneratedPuzzle(3)">Generate Level Three Difficulty</button>
+	<button type="button" onclick="nextGeneratedPuzzle(2)">Generate Level Two Difficulty</button>
+	<button type="button" onclick="nextGeneratedPuzzle(1)">Generate Level One Difficulty</button>
+</div>
+
+<div id="readout">
+</div>
+
+<div id="container">
+	<!--Mounting point for puzzle-->
+	<div id="mount-puzzle" style="display: inline-block;position:relative;margin: auto;">
+		<script type="text/javascript" src="/static/scripts/board.js"></script>
+	</div>
+</div>
+
+
+</body>
+</html>

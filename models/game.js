@@ -1,24 +1,19 @@
 const mongoose = require('mongoose');
-const uuid = require('uuid/v3');
 
 const sessionSchema = new mongoose.Schema({
-	token: {
-		type: String,
-		default: uuid
-	},
 	user: {
-		type: 'ObjectId',
+		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
 		required: true
 	},
 	puzzle: {
-		type: 'ObjectId',
+		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Puzzle',
 		required: true
 	},
 	start: {
 		type: Date,
-		default: Date
+		default: Date.now
 	},
 	finish: {
 		type: Date,

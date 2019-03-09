@@ -10,8 +10,11 @@
 <form id="create" onsubmit="createAccount(event)">
 	<input name="username" type="text" placeholder="Username" required>
 	<input name="password" type="password" placeholder="Password" required>
-	<input type="password" placeholder="Confirm Password" required>
+	<input name="passwordCheck" type="password" placeholder="Confirm Password" required>
 	<input type="submit" value="Create Account">
+	<div id="results" style="background-color: pink;">
+		<span class="text-mount"></span>
+	</div>
 </form>
 <script>
 	function createAccount(event) {
@@ -20,12 +23,25 @@
 		const form = event.target;
 		const username = form.username.value;
 		const password = form.password.value;
+		const checkPassword = form.passwordCheck.value;
+
+		if (password !== checkPassword) {
+			document.getElementById("results").getElementsByClassName("text-mount")[0].innerHTML =
+				"Your passwords must match!";
+			return;
+		} else {
+			document.getElementById("results").getElementsByClassName("text-mount")[0].innerHTML =
+				"Creating account...";
+		}
 
 		axios.post('/user/account/create', {
 			username: username,
 			password: password
 		}).then(response => {
 			if (response.data.success === true) {
+				document.getElementById("results").getElementsByClassName("text-mount")[0].innerHTML =
+					"Success! Redirecting...";
+
 				// Redirect to home
 				window.location.href = "/";
 			}
