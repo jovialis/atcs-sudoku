@@ -15,7 +15,15 @@ module.exports.registerRoutes = (router) => {
 		res.sendFile(path.join(__dirname, '../public/login.html'));
 	});
 
-	// Serve index file in all other cases
+	// router.get('/', [auth.redirectIfNoUser('/account/login'), auth.userInfoCookies], (req, res) => {
+	// 	const id = req.param('id');
+	//
+	// 	res.cookie('puzzle', user.username);
+	//
+	// 	res.sendFile(path.join(__dirname, '../public/game.html'));
+	// });
+
+	// Serve game file in all other cases
 	router.get('*', [auth.redirectIfNoUser('/account/login'), auth.userInfoCookies], (req, res) => {
 		res.sendFile(path.join(__dirname, '../public/game.html'));
 	});

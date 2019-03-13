@@ -11,17 +11,31 @@
 	</style>
 </head>
 <body>
-<img src="/static/assets/icon.png" alt="Site Icon" height="20px">
-<h1>Account</h1>
-<div style="border: 1px solid gray">
-	<h2 id="name"></h2>
-	<h3 id="username"></h3>
+<div id="container">
+	<div id="navigation">
+		<div id="navigation-section-left" class="navigation-section">
+			<a href="/">
+				<img id="icon" src="/static/assets/icon.png" alt="Site Icon" height="20px">
+			</a>
+		</div>
+		<div id="navigation-section-right" class="navigation-section">
+			<a href="/">Play</a>
+			<a href="/account">Account</a>
+		</div>
+	</div>
+	<div id="content">
+		<h1>Account</h1>
+		<div style="border: 1px solid gray">
+			<h2 id="name"></h2>
+			<h3 id="username"></h3>
+		</div>
+		<script>
+			document.getElementById("name").innerHTML = Cookies.get('name');
+			document.getElementById("username").innerHTML = `(${Cookies.get('username')})`;
+		</script>
+		<button onclick="logoutUser(event)">Logout</button>
+	</div>
 </div>
-<script>
-	document.getElementById("name").innerHTML = Cookies.get('name');
-	document.getElementById("username").innerHTML = `(${Cookies.get('username')})`;
-</script>
-<button onclick="logoutUser(event)">Logout</button>
 </body>
 <script>
 	function logoutUser(event) {

@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const expressSsl = require('express-sslify');
-const cookieParser = require('cookie-parser');
 
 const mongoose = require('mongoose');
 
@@ -52,7 +51,7 @@ router.use('/static', express.static(path.join(__dirname, 'public')));
 registerRoutes(router);
 
 // Grab port and start listening
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 router.listen(port, () => {
 	console.log("Express is now listening on port: " + port);
 });
@@ -67,7 +66,9 @@ function registerRoutes(router) {
 
 function registerModels() {
 
-	mongoose.connect(process.env.MONGODB_URI);
+	mongoose.connect(process.env.MONGODB_URI, {
+		useNewUrlParser: true
+	});
 
 	require('./models/game');
 	require('./models/puzzle');

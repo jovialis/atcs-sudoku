@@ -19,17 +19,49 @@
 <body>
 
 <div id="container">
-	<!--Mounting point for puzzle-->
-	<div id="mount-puzzle" style="display: inline-block;position:relative;margin: auto;">
-		<script type="text/javascript" src="/static/scripts/board.js"></script>
+	<div id="navigation">
+		<div id="navigation-section-left" class="navigation-section">
+			<a href="/">
+				<img id="icon" src="/static/assets/icon.png" alt="Site Icon" height="20px">
+			</a>
+		</div>
+		<div id="navigation-section-right" class="navigation-section">
+			<a href="/">Play</a>
+			<a href="/account">Account</a>
+		</div>
+	</div>
+	<div id="content">
+
+		<div id="account-container">
+			<h2 id="name">Name</h2>
+			<h3 id="username">Username</h3>
+			<script>
+				document.getElementById("name").innerHTML = Cookies.get('name');
+				document.getElementById("username").innerHTML = `(${Cookies.get('username')})`;
+			</script>
+		</div>
+
+		<div id="puzzle-container">
+			<!--Mounting point for puzzle-->
+			<h6 id="mount-puzzleid"></h6>
+			<div id="mount-puzzle" style="display: inline-block;position:relative;margin: auto;">
+				<script type="text/javascript" src="/static/scripts/board.js"></script>
+			</div>
+
+			<button id="action-reset" onclick="resetBoard()">Reset Board</button>
+			<button id="action-check" onclick="checkAnswer()">Check Answer</button>
+			<button id="action-forfeit" onclick="giveUp()">Give Up</button>
+			<button id="action-next" onclick="nextGame()">Next Puzzle</button>
+
+			<div id="readout">
+				<span id="status"></span>
+			</div>
+
+		</div>
+
+
 	</div>
 
-	<button onclick="resetBoard()">Reset Board</button>
-	<button onclick="checkAnswer()">Check Answer</button>
-	<button onclick="giveUp()">Give Up</button>
-	<button onclick="nextGame()">Next Puzzle</button>
-
 </div>
-
 </body>
 </html>

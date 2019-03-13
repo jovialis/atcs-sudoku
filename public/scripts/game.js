@@ -12,6 +12,9 @@ function nextGame() {
 		curPuzzleStructure = puzzle.structure;
 
 		boardLoadStructure(curPuzzleStructure);
+
+		showPuzzleID(curPuzzleUid);
+		showIngameHUD(true);
 	}).catch(err => {
 		console.log(err);
 	});
@@ -22,6 +25,8 @@ function resetBoard() {
 }
 
 function checkAnswer() {
+	setStatus('Checking your solution...', 'status-checking', 2000);
+
 	const values = extractPageValues();
 
 	axios.post('/puzzle/validate', {
@@ -31,10 +36,12 @@ function checkAnswer() {
 
 		if (result.data.valid) {
 			/// Valid
-			console.log('Correct!');
+			setStatus('Correct!!', 'status-correct', 100000);
+			showIngameHUD(false);
 		} else {
 // Invalid
-			console.log('Oof! Incorrect!');
+			setStatus('That not right :(', 'status-incorrect', 5000);
+			showIngameHUD(true);
 		}
 	}).catch(err => {
 		console.log(err);
@@ -42,14 +49,13 @@ function checkAnswer() {
 }
 
 function giveUp() {
-	axios.post('/puzzle/forfeit').then(result => {
-		// forfeited: true,
-		// 	attempts: doc.attempts,
-		// 	solution: puzzle,
-		// 	time: ( doc.start - doc.finish )
+	setStatus('You gave up. Fetching solution...', 'status-forfeit', 4000);
 
+	axios.post('/puzzle/forfeit').then(result => {
 		console.log(result.data);
 		boardOverlayStructure(curPuzzleStructure, result.data.solution);
+
+		showIngameHUD(false);
 	}).catch(err => {
 		console.log(err);
 	});

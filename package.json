@@ -2,13 +2,13 @@
 	"name": "Sudoku",
 	"version": "1.0.0",
 	"dependencies": {
-		"express": "^4.16.4",
-		"body-parser": "^1.18.3",
-		"express-session": "^1.15.6",
-		"connect-mongo": "^2.0.3",
-		"express-sslify": "^1.2.0",
-		"mongoose": "^5.4.17",
 		"bcrypt": "^3.0.4",
+		"body-parser": "^1.18.3",
+		"connect-mongo": "^2.0.3",
+		"express": "^4.16.4",
+		"express-session": "^1.15.6",
+		"express-sslify": "^1.2.0",
+		"mongoose": "^5.4.18",
 		"uuid": "^3.3.2"
 	},
 	"scripts": {

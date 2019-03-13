@@ -105,6 +105,10 @@ function generatePuzzle(difficultyLevel) {
 		}
 
 		// Generate random numbers
+		for (let i = 0 ; i < 9 ; i++) {
+
+		}
+
 		for (let i = 0; i < numberOfNumbersToGenerate; i++) {
 			// Generates list of number strings, sorts them randomly, returns them mapped to number.
 			const randomListOfPossibleValues = "123456789".split('').sort((a, b) => ((Math.random() * 2) - 1)).map(i => Number(i));
@@ -121,6 +125,8 @@ function generatePuzzle(difficultyLevel) {
 				}
 			}
 		}
+
+		// Now we
 
 		const Puzzle = mongoose.model('Puzzle');
 		const puzzleDoc = new Puzzle({
