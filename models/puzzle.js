@@ -14,6 +14,10 @@ mongoose.model('Puzzle', new mongoose.Schema({
 	structure: {
 		type: mongoose.Schema.Types.Mixed,
 		required: true
+	},
+	solution: {
+		type: mongoose.Schema.Types.Mixed,
+		required: true
 	}
 }, {
 	collection: 'puzzles'

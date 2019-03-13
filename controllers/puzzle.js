@@ -38,18 +38,28 @@ function generateNewGameForUser(user, difficultyLevel) {
 					difficulty: `${difficultyLevel}`
 				}).sort(`${((Math.random() * 2) - 1)}`).exec();
 
+				// Search for puzzles where the end date is defined, as these puzzles have either been forfeited or
+				// completed
 				const completedPuzzles = await Game.find({
 					user: user._id,
-					completed: true
+					finish: {
+						$ne: null
+					}
 				});
+
+				// console.log('Completed:');
+				// console.log(completedPuzzles);
 
 				for (const availablePuzzle of availablePuzzles) {
 					// If the completed puzzles doesn't contain this puzzle
 					if (completedPuzzles.filter(doc => (doc.puzzle === availablePuzzle._id)).length === 0) {
-						puzzleDoc = availablePuzzle;
+						// console.log(`${ availablePuzzle._id }`);
+						// puzzleDoc = availablePuzzle;
 						break;
 					}
 				}
+
+				// console.log('Found: ' + puzzleDoc._id);
 
 				// If we got here, none of the puzzles will work, as we've already completed them all. Thus, we have
 				// to generate one.
@@ -80,7 +90,8 @@ function generateNewGameForUser(user, difficultyLevel) {
 				game: game.token,
 				uid: puzzleDoc.uid,
 				difficulty: Number(puzzleDoc.difficulty),
-				structure: puzzleDoc.structure
+				structure: puzzleDoc.structure,
+				start: game.start
 			});
 		}).catch(reject);
 	});
@@ -104,34 +115,56 @@ function generatePuzzle(difficultyLevel) {
 			newPuzzle.push(add)
 		}
 
-		// Generate random numbers
-		for (let i = 0 ; i < 9 ; i++) {
+		const solutions = [];
 
+		// Populate solutions array with all solutions
+		generateSolutions(newPuzzle, solutions, 0, 0);
+
+		console.log(solutions);
+
+		// Grab a random solution
+		const solution = solutions[Math.floor(Math.random() * solutions.length)];
+
+		// Clone the solution so we can test on it
+		let testingSolution = [];
+		for (let row = 0; row < solution.length; row++) {
+			let newPuzzleCols = [];
+			for (let col = 0; col < solution[row].length(); col++) {
+				newPuzzleCols.push(col);
+			}
+			testingSolution.push(newPuzzleCols);
 		}
 
-		for (let i = 0; i < numberOfNumbersToGenerate; i++) {
-			// Generates list of number strings, sorts them randomly, returns them mapped to number.
-			const randomListOfPossibleValues = "123456789".split('').sort((a, b) => ((Math.random() * 2) - 1)).map(i => Number(i));
+		// Try N times to remove values from the puzzle.
+		const numberOfNumbersToRemove = 9 * 9 - numberOfNumbersToGenerate;
+		for (let i = 0; i < numberOfNumbersToRemove; i++) {
+			const randomX = Math.floor(Math.random() * 9);
+			const randomY = Math.floor(Math.random() * 9);
 
-			// Generate random coords
-			const randomRow = Math.floor(Math.random() * 9);
-			const randomCol = Math.floor(Math.random() * 9);
+			const value = testingSolution[randomX][randomY];
 
-			// Find a random number that'll work at that position
-			for (const possibleVal of randomListOfPossibleValues) {
-				if (numberIsValidInPosition(newPuzzle, possibleVal, randomRow, randomCol)) {
-					newPuzzle[randomRow][randomCol] = possibleVal;
-					break;
-				}
+			// Ignore if it's already been removed
+			if (value === 0) {
+				i--;
+				continue;
+			}
+
+			testingSolution[randomX][randomY] = 0;
+
+			let unwantedSolutions = [];
+			generateSolutions(testingSolution, unwantedSolutions, 0, 0);
+
+			// If removing this number leads to more than one solution, we put it back and continue on
+			if (unwantedSolutions > 1) {
+				testingSolution[randomX][randomY] = value;
 			}
 		}
-
-		// Now we
 
 		const Puzzle = mongoose.model('Puzzle');
 		const puzzleDoc = new Puzzle({
 			difficulty: `${difficultyLevel}`,
-			structure: newPuzzle
+			structure: testingSolution,
+			solution: solution
 		});
 
 		puzzleDoc.save().then(() => {
@@ -222,11 +255,12 @@ module.exports.routeForfeitPuzzle = (req, res) => {
 	const token = req.session.game;
 
 	forfeitPuzzle(token).then(result => {
+		req.session.game = null;
 		res.json(result);
 	}).catch(error => {
 		console.log(error);
 		res.status(error.code ? error.code : 500).send(error.message ? error.message : 'An internal error occurred');
-	})
+	});
 };
 
 function forfeitPuzzle(gameToken) {
@@ -297,25 +331,39 @@ function validatePuzzleValues(puzzle) {
 	return true;
 }
 
-function generateSolution(puzzle, curRow, curCol) {
+function generateSolutions(puzzle, solutionsList, curRow, curCol) {
 	// If the value is pre populated
 	if (puzzle[curRow][curCol] !== 0) {
 		const incremented = getNextRowAndColumn(curRow, curCol);
 
-		// If we're at the end, we return true because we've finished
+		// If we're at the end, we duplicate the current puzzle and add it to the solutions list, then return false
+		// to see if we can keep going to find another solution.
 		if (incremented['row'] === -1 || incremented['col'] === -1) {
-			return true;
+			// Clone the current puzzle
+			let newPuzzleRows = [];
+			for (let row = 0; row < puzzle.length; row++) {
+				let newPuzzleCols = [];
+				for (let col = 0; col < puzzle[row].length(); col++) {
+					newPuzzleCols.push(col);
+				}
+				newPuzzleRows.push(newPuzzleCols);
+			}
+
+			// Append the cloned puzzle to the list of solutions
+			solutionsList.push(newPuzzleRows);
+			return false;
 		}
 
 		// Go to next position
-		return generateSolution(puzzle, incremented['row'], incremented['col']);
+		return generateSolutions(puzzle, solutionsList, incremented['row'], incremented['col']);
 	}
 
 	// Otherwise, we go through all possible values
 	const initialValue = puzzle[curRow][curCol];
 
 	let valid = false;
-	for (let i = 1; i <= 9; i++) {
+	// Choose random order of 1-9
+	for (let i of [1, 2, 3, 4, 5, 6, 7, 8, 9].sort((a, b) => Math.random() * 2 - 1)) {
 		if (numberIsValidInPosition(puzzle, i, curRow, curCol)) {
 			puzzle[curRow][curCol] = i;
 
@@ -327,7 +375,7 @@ function generateSolution(puzzle, curRow, curCol) {
 				break;
 			}
 
-			if (generateSolution(puzzle, incremented['row'], incremented['col'])) {
+			if (generateSolutions(puzzle, solutionsList, incremented['row'], incremented['col'])) {
 				valid = true;
 				break;
 			}

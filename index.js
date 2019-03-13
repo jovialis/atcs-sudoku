@@ -51,7 +51,7 @@ router.use('/static', express.static(path.join(__dirname, 'public')));
 registerRoutes(router);
 
 // Grab port and start listening
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 router.listen(port, () => {
 	console.log("Express is now listening on port: " + port);
 });
