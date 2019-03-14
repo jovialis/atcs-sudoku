@@ -13,7 +13,7 @@ function setLeaderboard(leaderboard) {
     document.getElementById('leaderboard-status').innerHTML = "";
 
     for (const child of leaderboard) {
-        const name = child.name;
+        const name = child.user;
         const attempts = child.attempts;
         const time = child.time;
 
