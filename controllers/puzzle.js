@@ -309,7 +309,7 @@ module.exports.routeValidateSolution = (req, res) => {
 	const token = req.session.game;
 	const puzzle = req.body.puzzle;
 
-	validateSolution(token, puzzle).then(valid => {
+	validateSolution(token, puzzle).then(async valid => {
 		if (valid.valid) {
 			req.session.game = null;
 		}
@@ -327,7 +327,7 @@ function forceWin(gameToken) {
 
 		Game.findOne({
 			token: gameToken
-		}).populate('puzzle').populate('user').exec().then(doc => {
+		}).populate('puzzle').populate('user').exec().then(async doc => {
 			if (!doc) {
 				reject({
 					code: 400,
@@ -356,11 +356,19 @@ function forceWin(gameToken) {
 
 			doc.attempts++;
 
+			let leaderboard;
+			try {
+				leaderboard = await getPuzzleLeaderboard(puzzle._id);
+			} catch (error) {
+				console.log(error);
+			}
+
 			doc.save().then(() => {
 				resolve({
 					valid: correct,
 					attempts: doc.attempts,
-					solution: solution
+					solution: solution,
+					leaderboard: leaderboard
 				});
 			}).catch(reject);
 		}).catch(reject);
@@ -381,7 +389,7 @@ function validateSolution(gameToken, userSolution) {
 
 		Game.findOne({
 			token: gameToken
-		}).populate('puzzle').populate('user').exec().then(doc => {
+		}).populate('puzzle').populate('user').exec().then(async doc => {
 			if (!doc) {
 				reject({
 					code: 400,
@@ -424,10 +432,18 @@ function validateSolution(gameToken, userSolution) {
 
 			doc.attempts++;
 
+			let leaderboard;
+			try {
+				leaderboard = await getPuzzleLeaderboard(puzzle._id);
+			} catch (error) {
+				console.log(error);
+			}
+
 			doc.save().then(() => {
 				resolve({
 					valid: correct,
-					attempts: doc.attempts
+					attempts: doc.attempts,
+					leaderboard: leaderboard
 				});
 			}).catch(reject);
 		}).catch(reject);

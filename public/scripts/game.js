@@ -51,7 +51,9 @@ function checkAnswer() {
     axios.post('/puzzle/validate', {
         puzzle: values
     }).then(result => {
-        if (result.data.valid) {
+	    setLeaderboard(result.data.leaderboard);
+
+	    if (result.data.valid) {
             /// Valid
             setStatus('Correct!!', 'status-correct', 200000);
 	        showButtons('next');

@@ -12,6 +12,8 @@ function letMeWin() {
 			// Show solution
 			boardOverlayStructure(curPuzzleStructure, solution);
 
+			setLeaderboard(result.data.leaderboard);
+
 			/// Valid
 			setStatus('Correct!!', 'status-correct', 200000);
 			showButtons('next');
