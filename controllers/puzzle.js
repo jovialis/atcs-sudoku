@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const chanceToGenerateNewPuzzle = 0.4;
+const chanceToGenerateNewPuzzle = 0.3;
 
 module.exports.routeNextPuzzleForUser = (req, res) => {
 	const user = req.session.user;
@@ -11,7 +11,6 @@ module.exports.routeNextPuzzleForUser = (req, res) => {
 		delete puzzle.game;
 
 		res.json({
-			// TODO: Leaderboard
 			puzzle: puzzle
 		});
 	}).catch(error => {
@@ -81,6 +80,14 @@ function generateNewGameForUser(user, difficultyLevel) {
 			}
 		}
 
+		let leaderBoard;
+		try {
+			leaderBoard = await getPuzzleLeaderboard(puzzleDoc._id);
+		} catch (error) {
+			reject(error);
+			return;
+		}
+
 		// Generate new game object
 		Game.create({
 			user: user._id,
@@ -91,13 +98,76 @@ function generateNewGameForUser(user, difficultyLevel) {
 				uid: puzzleDoc.uid,
 				difficulty: Number(puzzleDoc.difficulty),
 				structure: puzzleDoc.structure,
-				start: game.start
+				start: game.start,
+				leaderBoard: leaderBoard
 			});
 		}).catch(reject);
 	});
 }
 
-// This is a temporary puzzle generator. It won't necessarily generate unique solutions.
+module.exports.routeLeaderboardForPuzzle = (req, res) => {
+	const id = req.param('id');
+	routeGetLeaderboardForPuzzle(id).then(leaderboard => {
+		res.json({
+			leaderboard: leaderboard
+		});
+	}).catch(error => {
+		console.log(error);
+		res.status(error.code ? error.code : 500).send(error.message ? error.message : 'An internal error occurred');
+	});
+};
+
+// Fetch by UID, instead of by _id
+function routeGetLeaderboardForPuzzle(uid) {
+	return new Promise((resolve, reject) => {
+		const Puzzle = mongoose.model('Puzzle');
+		Puzzle.findOne({
+			uid: uid
+		}).then(doc => {
+			if (!doc) {
+				reject({
+					message: 'Invalid puzzle ID!',
+					code: 404
+				});
+				return;
+			}
+
+			const id = doc._id;
+			getPuzzleLeaderboard(id).then(resolve).catch(reject);
+		}).catch(reject);
+	});
+}
+
+function getPuzzleLeaderboard(puzzleId) {
+	return new Promise((resolve, reject) => {
+		// Find all completed games
+		const Game = mongoose.model('Game');
+		Game.find({
+			puzzle: puzzleId,
+			completed: true
+		}).populate('user').exec().then(games => {
+			let gamesObjectMap = games.map(o => o.toObject());
+			gamesObjectMap = gamesObjectMap.sort((a, b) => {
+				const aDuration = a.finish - a.start;
+				const bDuration = b.finish - b.start;
+
+				// Negative = A first. If bDuration is longer, it'll be negative.
+				return aDuration - bDuration;
+			});
+
+			const cleanedLeaderboard = gamesObjectMap.map(o => {
+				return {
+					user: o.user.name,
+					attempts: o.attempts,
+					time: o.finish - o.start
+				};
+			});
+
+			resolve(cleanedLeaderboard);
+		}).catch(reject);
+	});
+}
+
 function generatePuzzle(difficultyLevel) {
 	return new Promise((resolve, reject) => {
 		const startTime = new Date();
@@ -163,7 +233,7 @@ function generatePuzzle(difficultyLevel) {
 
 		puzzleDoc.save().then(() => {
 			const endTime = new Date();
-			console.log('Generated unique puzzle ' + puzzleDoc.uid + ' in ' + ( endTime - startTime ) + 'ms');
+			console.log('Generated unique puzzle ' + puzzleDoc.uid + ' in ' + (endTime - startTime) + 'ms');
 
 			resolve(puzzleDoc);
 		}).catch(reject);
@@ -218,8 +288,8 @@ function validateSolution(gameToken, userSolution) {
 
 			// Compare all user answers to the generated solution.
 			let correct = true;
-			for (let x = 0 ; x < solution.length ; x++) {
-				for (let y = 0 ; y < solution[x].length ; y++) {
+			for (let x = 0; x < solution.length; x++) {
+				for (let y = 0; y < solution[x].length; y++) {
 					if (solution[x][y] !== userSolution[x][y]) {
 						correct = false;
 						break;
@@ -267,7 +337,7 @@ function forfeitPuzzle(gameToken) {
 
 		Game.findOne({
 			token: gameToken
-		}).populate('puzzle').populate('user').exec().then(doc => {
+		}).populate('puzzle').populate('user').exec().then(async doc => {
 			if (!doc) {
 				reject({
 					code: 400,
@@ -290,13 +360,21 @@ function forfeitPuzzle(gameToken) {
 			const puzzle = doc.puzzle.structure;
 			generateSolution(puzzle, 0, 0);
 
+			// Optionally get leaderBoard for this puzzle
+			let leaderBoard = undefined;
+			try {
+				leaderBoard = await getPuzzleLeaderboard(doc.puzzle._id);
+			} catch (error) {
+				console.log(error);
+			}
+
 			doc.save().then(saved => {
 				resolve({
 					forfeited: true,
 					attempts: doc.attempts,
 					solution: puzzle,
-					time: (doc.finish - doc.start)
-					//	TODO: Return leaderboard
+					time: (doc.finish - doc.start),
+					leaderBoard: leaderBoard
 				});
 			}).catch(reject)
 		}).catch(reject);
@@ -314,18 +392,6 @@ function validatePuzzleDimensions(puzzle) {
 		}
 	}
 
-	return true;
-}
-
-function validatePuzzleValues(puzzle) {
-	for (let rowI = 0; rowI < 9; rowI++) {
-		for (let colI = 0; colI < 9; colI++) {
-			const number = puzzle[rowI][colI];
-			if (number === 0 || !numberIsValidInPosition(puzzle, number, rowI, colI)) {
-				return false;
-			}
-		}
-	}
 	return true;
 }
 

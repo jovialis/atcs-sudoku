@@ -58,9 +58,9 @@ router.listen(port, () => {
 
 function registerRoutes(router) {
 
-	require('./routes/pages').registerRoutes(router);
 	require('./routes/user').registerRoutes(router);
 	require('./routes/puzzle').registerRoutes(router);
+	require('./routes/pages').registerRoutes(router);
 
 }
 
