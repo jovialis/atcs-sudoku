@@ -298,6 +298,8 @@ module.exports.routeMulligan = (req, res) => {
 	const token = req.session.game;
 
 	forceWin(token).then(valid => {
+		req.session.game = null;
+
 		res.json(valid);
 	}).catch(error => {
 		console.log(error);
