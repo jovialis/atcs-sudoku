@@ -310,6 +310,10 @@ module.exports.routeValidateSolution = (req, res) => {
 	const puzzle = req.body.puzzle;
 
 	validateSolution(token, puzzle).then(valid => {
+		if (valid.valid) {
+			req.session.game = null;
+		}
+
 		res.json(valid);
 	}).catch(error => {
 		console.log(error);
