@@ -23,7 +23,7 @@ function getCurrentPuzzleForUser(user, gameToken) {
 	return new Promise((resolve, reject) => {
 		// If no game, generate a new game
 		if (!gameToken) {
-			generateNewGameForUser(user).then(resolve).catch(reject);
+			generateNewGameForUser(user, 1).then(resolve).catch(reject);
 			return;
 		}
 
@@ -32,7 +32,7 @@ function getCurrentPuzzleForUser(user, gameToken) {
 			token: gameToken
 		}).populate('puzzle').exec().then(async game => {
 			if (!game) {
-				generateNewGameForUser(user).then(resolve).catch(reject);
+				generateNewGameForUser(user, 1).then(resolve).catch(reject);
 				return;
 			}
 
