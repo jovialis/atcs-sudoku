@@ -80,9 +80,7 @@ function setPuzzleID(id) {
 
 function setLoading() {
 	showButtons('none');
-    setLeaderboard(null);
-    
-    setStatus('Loading...', 'status-loading', 5000);
-}
+	setLeaderboard(null);
 
-getCurrentGame();
+	setStatus('Loading...', 'status-loading', 5000);
+}
