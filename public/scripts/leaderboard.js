@@ -18,6 +18,7 @@ function setLeaderboard(leaderboard) {
         const time = child.time;
 
         const row = document.createElement('tr');
+        row.setAttribute("style", "border: 1px solid gray");
         row.setAttribute('id', 'row-entry');
 
         const nameData = document.createElement('td');
