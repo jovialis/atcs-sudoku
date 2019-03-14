@@ -1,7 +1,7 @@
 let statusLock;
 
 function setStatus(status, classNames, timeout) {
-	const statusElement = document.getElementById("status");
+	const statusElement = document.getElementById("hud-status");
 
 	const beforeClasses = statusElement.getAttribute("class");
 
