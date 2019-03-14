@@ -39,7 +39,7 @@ if (production) {
 	router.set('trust proxy', 1);
 
 	// HTTPS enabled
-	sessionOptions.cookie.secure = true // serve secure cookies
+	// sessionOptions.cookie.secure = true // serve secure cookies
 }
 
 router.use(session(sessionOptions));
