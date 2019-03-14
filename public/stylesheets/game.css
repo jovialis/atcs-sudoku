@@ -82,3 +82,15 @@ td.boardCellGroupB td.boardCell {
     left: -1px;
     color: #63615e;
 }
+
+.status-correct {
+    font-family: sans-serif;
+    font-size: 20px;
+    color: green;
+}
+
+.status-incorrect {
+    font-family: sans-serif;
+    font-size: 20px;
+    color: red;
+}

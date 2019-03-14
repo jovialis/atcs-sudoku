@@ -28,9 +28,12 @@ function nextGame() {
         setPuzzleID(puzzle.uid);
         setLeaderboard(puzzle.leaderboard);
 
+        curPuzzleStructure = puzzle.structure;
         boardLoadStructure(puzzle.structure);
 
 	    showButtons('ingame');
+
+	    setStatus('Loaded!', 'status-loading', 5000);
     }).catch(err => {
         console.log(err);
     });
@@ -50,11 +53,11 @@ function checkAnswer() {
     }).then(result => {
         if (result.data.valid) {
             /// Valid
-            setStatus('Correct!!', 'status-correct', 100000);
+            setStatus('Correct!!', 'status-correct', 200000);
 	        showButtons('next');
         } else {
             // Invalid
-            setStatus('That not right :(', 'status-incorrect', 5000);
+            setStatus('That is not quite right! Keep trying.', 'status-incorrect', 2000);
         }
     }).catch(err => {
         console.log(err);
