@@ -144,7 +144,17 @@ function extractPageValues() {
 		let row = [];
 		for (let colI = 0; colI < 9; colI++) {
 			// Grab the value for this index
-			const val = document.getElementById(`board-cell-${rowI}-${colI}`).getElementsByClassName('value-container')[0].innerHTML;
+			const element = document.getElementById(`board-cell-${rowI}-${colI}`).getElementsByClassName('value-container')[0];
+
+			let val;
+
+			// If it's an input, we get the value. Otherwise, we get the inner HTML
+			if (element.tagName === "INPUT") {
+				val = element.value;
+			} else if (element.tagName === "SPAN") {
+				val = element.innerHTML;
+			}
+
 			row.push(Number(val) ? Number(val) : 0);
 		}
 		puzzle.push(row);

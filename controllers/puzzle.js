@@ -100,10 +100,7 @@ function generateNewGameForUser(user, difficultyLevel) {
 // This is a temporary puzzle generator. It won't necessarily generate unique solutions.
 function generatePuzzle(difficultyLevel) {
 	return new Promise((resolve, reject) => {
-		// Normalize from [3] - [1] with three being easiest, one being hardest
-		const difficulty = 4 - Math.min(3, Math.max(1, difficultyLevel));
-		// Generate between eight and 24 numbers.
-		const numberOfNumbersToGenerate = 8 * difficulty;
+		const startTime = new Date();
 
 		// Generate blank puzzle
 		let newPuzzle = [];
@@ -115,28 +112,25 @@ function generatePuzzle(difficultyLevel) {
 			newPuzzle.push(add)
 		}
 
-		const solutions = [];
-
 		// Populate solutions array with all solutions
-		generateSolutions(newPuzzle, solutions, 0, 0);
-
-		console.log(solutions);
-
-		// Grab a random solution
-		const solution = solutions[Math.floor(Math.random() * solutions.length)];
+		generateSolutions(newPuzzle, [], 0, 0, true);
 
 		// Clone the solution so we can test on it
 		let testingSolution = [];
-		for (let row = 0; row < solution.length; row++) {
+		for (let row = 0; row < newPuzzle.length; row++) {
 			let newPuzzleCols = [];
-			for (let col = 0; col < solution[row].length(); col++) {
-				newPuzzleCols.push(col);
+			for (let col = 0; col < newPuzzle[row].length; col++) {
+				newPuzzleCols.push(newPuzzle[row][col]);
 			}
 			testingSolution.push(newPuzzleCols);
 		}
 
+		// Normalize from [3] - [1] with three being easiest, one being hardest
+		const difficulty = 4 - Math.min(3, Math.max(1, difficultyLevel));
+		// Generate between eight and 24 numbers.
+
 		// Try N times to remove values from the puzzle.
-		const numberOfNumbersToRemove = 9 * 9 - numberOfNumbersToGenerate;
+		const numberOfNumbersToRemove = 81 - 8 * difficulty;
 		for (let i = 0; i < numberOfNumbersToRemove; i++) {
 			const randomX = Math.floor(Math.random() * 9);
 			const randomY = Math.floor(Math.random() * 9);
@@ -152,10 +146,10 @@ function generatePuzzle(difficultyLevel) {
 			testingSolution[randomX][randomY] = 0;
 
 			let unwantedSolutions = [];
-			generateSolutions(testingSolution, unwantedSolutions, 0, 0);
+			generateSolutions(testingSolution, unwantedSolutions, 0, 0, false);
 
-			// If removing this number leads to more than one solution, we put it back and continue on
-			if (unwantedSolutions > 1) {
+			// If removing this number leads to more than one solution or none at all, we put it back and continue on
+			if (unwantedSolutions.length > 1 || unwantedSolutions.length === 0) {
 				testingSolution[randomX][randomY] = value;
 			}
 		}
@@ -164,10 +158,13 @@ function generatePuzzle(difficultyLevel) {
 		const puzzleDoc = new Puzzle({
 			difficulty: `${difficultyLevel}`,
 			structure: testingSolution,
-			solution: solution
+			solution: newPuzzle
 		});
 
 		puzzleDoc.save().then(() => {
+			const endTime = new Date();
+			console.log('Generated unique puzzle ' + puzzleDoc.uid + ' in ' + ( endTime - startTime ) + 'ms');
+
 			resolve(puzzleDoc);
 		}).catch(reject);
 	});
@@ -216,34 +213,35 @@ function validateSolution(gameToken, userSolution) {
 				return;
 			}
 
-			doc.attempts++;
-
 			const puzzle = doc.puzzle;
-			const structure = puzzle.structure;
+			const solution = puzzle.solution;
 
-			let completed = false;
-
-			// Copy original structure values back over to ensure that the client didn't artificially modify the
-			// puzzle's preset values.
-			for (let row = 0; row < structure.length; row++) {
-				for (let col = 0; col < structure[row].length; col++) {
-					const valAt = structure[row][col];
-					if (valAt !== 0) {
-						userSolution[row][col] = valAt;
+			// Compare all user answers to the generated solution.
+			let correct = true;
+			for (let x = 0 ; x < solution.length ; x++) {
+				for (let y = 0 ; y < solution[x].length ; y++) {
+					if (solution[x][y] !== userSolution[x][y]) {
+						correct = false;
+						break;
 					}
+				}
+
+				// Break out of outer loop
+				if (!correct) {
+					break;
 				}
 			}
 
-			if (validatePuzzleValues(userSolution)) {
+			if (correct) {
 				doc.finish = new Date();
 				doc.completed = true;
-
-				completed = true;
 			}
+
+			doc.attempts++;
 
 			doc.save().then(() => {
 				resolve({
-					valid: completed,
+					valid: correct,
 					attempts: doc.attempts
 				});
 			}).catch(reject);
@@ -331,31 +329,44 @@ function validatePuzzleValues(puzzle) {
 	return true;
 }
 
-function generateSolutions(puzzle, solutionsList, curRow, curCol) {
-	// If the value is pre populated
+function generateSolutions(puzzle, solutionsList, curRow, curCol, singleValue) {
+	if (curRow === -1 || curCol === -1) {
+		// Manual check because they might sometimes get passed as a result of getting all solutions
+		return false;
+	}
+
+	// If the value here is pre populated
 	if (puzzle[curRow][curCol] !== 0) {
 		const incremented = getNextRowAndColumn(curRow, curCol);
 
 		// If we're at the end, we duplicate the current puzzle and add it to the solutions list, then return false
 		// to see if we can keep going to find another solution.
 		if (incremented['row'] === -1 || incremented['col'] === -1) {
+			// If we only want one solution, we return true here and puzzle will be changed.
+			if (singleValue) {
+				return true;
+			}
+
+			// Otherwise we:
+
 			// Clone the current puzzle
 			let newPuzzleRows = [];
 			for (let row = 0; row < puzzle.length; row++) {
 				let newPuzzleCols = [];
-				for (let col = 0; col < puzzle[row].length(); col++) {
-					newPuzzleCols.push(col);
+				for (let col = 0; col < puzzle[row].length; col++) {
+					newPuzzleCols.push(puzzle[row][col]);
 				}
 				newPuzzleRows.push(newPuzzleCols);
 			}
 
 			// Append the cloned puzzle to the list of solutions
 			solutionsList.push(newPuzzleRows);
+
 			return false;
 		}
 
 		// Go to next position
-		return generateSolutions(puzzle, solutionsList, incremented['row'], incremented['col']);
+		return generateSolutions(puzzle, solutionsList, incremented['row'], incremented['col'], singleValue);
 	}
 
 	// Otherwise, we go through all possible values
@@ -371,11 +382,26 @@ function generateSolutions(puzzle, solutionsList, curRow, curCol) {
 
 			// If we've reached the end of the puzzle
 			if (incremented['row'] === -1 || incremented['col'] === -1) {
-				valid = true;
-				break;
+				if (singleValue) {
+					valid = true;
+					break;
+				} else {
+					// Clone the current puzzle
+					let newPuzzleRows = [];
+					for (let row = 0; row < puzzle.length; row++) {
+						let newPuzzleCols = [];
+						for (let col = 0; col < puzzle[row].length; col++) {
+							newPuzzleCols.push(puzzle[row][col]);
+						}
+						newPuzzleRows.push(newPuzzleCols);
+					}
+
+					// Append the cloned puzzle to the list of solutions
+					solutionsList.push(newPuzzleRows);
+				}
 			}
 
-			if (generateSolutions(puzzle, solutionsList, incremented['row'], incremented['col'])) {
+			if (generateSolutions(puzzle, solutionsList, incremented['row'], incremented['col'], singleValue)) {
 				valid = true;
 				break;
 			}
