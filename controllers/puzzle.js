@@ -327,7 +327,7 @@ function forceWin(gameToken) {
 
 		Game.findOne({
 			token: gameToken
-		}).populate('puzzle').populate('user').exec().then(async doc => {
+		}).populate('puzzle').populate('user').exec().then(doc => {
 			if (!doc) {
 				reject({
 					code: 400,
@@ -356,14 +356,14 @@ function forceWin(gameToken) {
 
 			doc.attempts++;
 
-			let leaderboard;
-			try {
-				leaderboard = await getPuzzleLeaderboard(puzzle._id);
-			} catch (error) {
-				console.log(error);
-			}
+			doc.save().then(async () => {
+				let leaderboard;
+				try {
+					leaderboard = await getPuzzleLeaderboard(puzzle._id);
+				} catch (error) {
+					console.log(error);
+				}
 
-			doc.save().then(() => {
 				resolve({
 					valid: correct,
 					attempts: doc.attempts,
@@ -432,14 +432,14 @@ function validateSolution(gameToken, userSolution) {
 
 			doc.attempts++;
 
-			let leaderboard;
-			try {
-				leaderboard = await getPuzzleLeaderboard(puzzle._id);
-			} catch (error) {
-				console.log(error);
-			}
+			doc.save().then(async () => {
+				let leaderboard;
+				try {
+					leaderboard = await getPuzzleLeaderboard(puzzle._id);
+				} catch (error) {
+					console.log(error);
+				}
 
-			doc.save().then(() => {
 				resolve({
 					valid: correct,
 					attempts: doc.attempts,
