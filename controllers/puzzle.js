@@ -294,6 +294,17 @@ function generatePuzzle(difficultyLevel) {
 	});
 }
 
+module.exports.routeMulligan = (req, res) => {
+	const token = req.session.game;
+
+	forceWin(token).then(valid => {
+		res.json(valid);
+	}).catch(error => {
+		console.log(error);
+		res.status(error.code ? error.code : 500).send(error.message ? error.message : 'An internal error occurred');
+	});
+};
+
 module.exports.routeValidateSolution = (req, res) => {
 	const token = req.session.game;
 	const puzzle = req.body.puzzle;
@@ -305,6 +316,52 @@ module.exports.routeValidateSolution = (req, res) => {
 		res.status(error.code ? error.code : 500).send(error.message ? error.message : 'An internal error occurred');
 	});
 };
+
+function forceWin(gameToken) {
+	return new Promise((resolve, reject) => {
+		const Game = mongoose.model('Game');
+
+		Game.findOne({
+			token: gameToken
+		}).populate('puzzle').populate('user').exec().then(doc => {
+			if (!doc) {
+				reject({
+					code: 400,
+					message: "Invalid token provided"
+				});
+				return;
+			}
+
+			if (doc.completed || doc.forfeited) {
+				reject({
+					message: "Puzzle already completed",
+					code: 409
+				});
+				return;
+			}
+
+			const puzzle = doc.puzzle;
+			const solution = puzzle.solution;
+
+			let correct = true;
+
+			if (correct) {
+				doc.finish = new Date();
+				doc.completed = true;
+			}
+
+			doc.attempts++;
+
+			doc.save().then(() => {
+				resolve({
+					valid: correct,
+					attempts: doc.attempts,
+					solution: solution
+				});
+			}).catch(reject);
+		}).catch(reject);
+	});
+}
 
 function validateSolution(gameToken, userSolution) {
 	return new Promise((resolve, reject) => {

@@ -72,6 +72,8 @@ function giveUp() {
 		setLeaderboard(result.data.leaderboard);
 
 	    showButtons('next');
+
+	    setStatus('Solution Found', 'status-solution', 5000);
     }).catch(err => {
         console.log(err);
     });

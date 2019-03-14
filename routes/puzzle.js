@@ -7,6 +7,7 @@ module.exports.registerRoutes = (router) => {
 	router.post('/puzzle/current', auth.requireUser, controller.routeCurrentPuzzleForUser);
 
 	router.post('/puzzle/validate', auth.requireUser, controller.routeValidateSolution);
+	router.post('/puzzle/mulligan', auth.requireUser, controller.routeMulligan);
 	router.post('/puzzle/forfeit', auth.requireUser, controller.routeForfeitPuzzle);
 
 	router.get('/puzzle/leaderboard/:id', controller.routeLeaderboardForPuzzle);
