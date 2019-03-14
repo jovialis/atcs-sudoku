@@ -1,6 +1,60 @@
 const mongoose = require('mongoose');
 const chanceToGenerateNewPuzzle = 0.3;
 
+module.exports.routeCurrentPuzzleForUser = (req, res) => {
+	const user = req.session.user;
+	const game = req.session.game;
+
+	getCurrentPuzzleForUser(user, game).then(puzzle => {
+		// Set session game
+		req.session.game = puzzle.game;
+		delete puzzle.game;
+
+		res.json({
+			puzzle: puzzle
+		});
+	}).catch(error => {
+		console.log(error);
+		res.status(error.code ? error.code : 500).send(error.message ? error.message : 'An internal error occurred');
+	});
+};
+
+function getCurrentPuzzleForUser(user, gameToken) {
+	return new Promise((resolve, reject) => {
+		// If no game, generate a new game
+		if (!gameToken) {
+			generateNewGameForUser(user).then(resolve).catch(reject);
+			return;
+		}
+
+		const Game = mongoose.model('Game');
+		Game.findOne({
+			token: gameToken
+		}).populate('puzzle').exec().then(async game => {
+			if (!game) {
+				generateNewGameForUser(user).then(resolve).catch(reject);
+				return;
+			}
+
+			let leaderboard;
+			try {
+				leaderboard = await getPuzzleLeaderboard(game.puzzle.uid);
+			} catch (error) {
+				console.log(error);
+			}
+
+			resolve({
+				game: game.token,
+				uid: game.puzzle.uid,
+				difficulty: Number(game.puzzle.difficulty),
+				structure: game.puzzle.structure,
+				start: gameToken.start,
+				leaderboard: leaderboard
+			});
+		}).catch(reject);
+	});
+}
+
 module.exports.routeNextPuzzleForUser = (req, res) => {
 	const user = req.session.user;
 	const difficulty = req.body.difficulty ? req.body.difficulty : 1;
@@ -99,7 +153,7 @@ function generateNewGameForUser(user, difficultyLevel) {
 				difficulty: Number(puzzleDoc.difficulty),
 				structure: puzzleDoc.structure,
 				start: game.start,
-				leaderBoard: leaderBoard
+				leaderboard: leaderBoard
 			});
 		}).catch(reject);
 	});
@@ -357,8 +411,7 @@ function forfeitPuzzle(gameToken) {
 			doc.finish = new Date();
 			doc.forfeited = true;
 
-			const puzzle = doc.puzzle.structure;
-			generateSolution(puzzle, 0, 0);
+			const puzzle = doc.puzzle.solution;
 
 			// Optionally get leaderBoard for this puzzle
 			let leaderBoard = undefined;
@@ -374,7 +427,7 @@ function forfeitPuzzle(gameToken) {
 					attempts: doc.attempts,
 					solution: puzzle,
 					time: (doc.finish - doc.start),
-					leaderBoard: leaderBoard
+					leaderboard: leaderBoard
 				});
 			}).catch(reject)
 		}).catch(reject);
