@@ -20,15 +20,15 @@ function setLeaderboard(leaderboard) {
         const row = document.createElement('tr');
         row.setAttribute('id', 'row-entry');
 
-        const nameData = document.createAttribute('td');
+        const nameData = document.createElement('td');
         nameData.setAttribute('class', 'col-name');
         nameData.innerHTML = name;
 
-        const timeData = document.createAttribute('td');
+        const timeData = document.createElement('td');
         timeData.setAttribute('class', 'col-time');
         timeData.innerHTML = `${ time / 1000 }s`;
 
-        const attemptsData = document.createAttribute('td');
+        const attemptsData = document.createElement('td');
         attemptsData.setAttribute('class', 'col-attempts');
         attemptsData.innerHTML = `${ attempts }`;
 
