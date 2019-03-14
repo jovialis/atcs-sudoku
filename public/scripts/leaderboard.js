@@ -1,3 +1,5 @@
+let addedRows = [];
+
 function setLeaderboard(leaderboard) {
 
     clearLeaderboard();
@@ -33,19 +35,19 @@ function setLeaderboard(leaderboard) {
         row.appendChild(nameData);
         row.appendChild(timeData);
         row.appendChild(attemptsData);
-        
+
         mount.appendChild(row);
+        addedRows.push(row);
     }
 
 }
 
 function clearLeaderboard() {
 
-    const mount = document.getElementById("mount-leaderboard");
-    for (const child of mount.childNodes) {
-        if (child.classList.contains('row-entry')) {
-            child.remove();
-        }
+    for (const row of addedRows) {
+    	row.parentElement.removeChild(row);
     }
+
+    addedRows = [];
 
 }
