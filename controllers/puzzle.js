@@ -38,7 +38,7 @@ function getCurrentPuzzleForUser(user, gameToken) {
 
 			let leaderboard;
 			try {
-				leaderboard = await getPuzzleLeaderboard(game.puzzle.uid);
+				leaderboard = await getPuzzleLeaderboard(game.puzzle._id);
 			} catch (error) {
 				console.log(error);
 			}
