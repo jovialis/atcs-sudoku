@@ -105,8 +105,15 @@ function generateNewGameForUser(user, difficultyLevel) {
 
 				for (const availablePuzzle of availablePuzzles) {
 					// If the completed puzzles doesn't contain this puzzle
-					if (completedPuzzles.filter(doc => (doc.puzzle === availablePuzzle._id)).length === 0) {
-						// console.log(`${ availablePuzzle._id }`);
+					let valid = true;
+					for (const completedGame of completedPuzzles) {
+						if (availablePuzzle._id === completedGame.puzzle) {
+							valid = false;
+							break;
+						}
+					}
+
+					if (valid) {
 						puzzleDoc = availablePuzzle;
 						break;
 					}
