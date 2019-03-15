@@ -109,7 +109,7 @@ function generateNewGameForUser(user, difficultyLevel) {
 					for (const completedGame of completedPuzzles) {
 						console.log(`${availablePuzzle._id} === ${completedGame.puzzle._id}`);
 
-						if (availablePuzzle._id === completedGame.puzzle._id) {
+						if (availablePuzzle._id.equals(completedGame.puzzle._id)) {
 							console.log('User has completed puzzle ' + availablePuzzle.uid);
 
 							valid = false;
