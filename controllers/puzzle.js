@@ -107,7 +107,7 @@ function generateNewGameForUser(user, difficultyLevel) {
 					// If the completed puzzles doesn't contain this puzzle
 					if (completedPuzzles.filter(doc => (doc.puzzle === availablePuzzle._id)).length === 0) {
 						// console.log(`${ availablePuzzle._id }`);
-						// puzzleDoc = availablePuzzle;
+						puzzleDoc = availablePuzzle;
 						break;
 					}
 				}
