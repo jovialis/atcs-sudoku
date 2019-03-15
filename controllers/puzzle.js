@@ -98,7 +98,7 @@ function generateNewGameForUser(user, difficultyLevel) {
 					finish: {
 						$ne: null
 					}
-				});
+				}).populate('puzzle').exec();
 
 				// console.log('Completed:');
 				// console.log(completedPuzzles);
@@ -107,13 +107,19 @@ function generateNewGameForUser(user, difficultyLevel) {
 					// If the completed puzzles doesn't contain this puzzle
 					let valid = true;
 					for (const completedGame of completedPuzzles) {
-						if (availablePuzzle._id === completedGame.puzzle) {
+						console.log(`${availablePuzzle._id} === ${completedGame.puzzle._id}`);
+
+						if (availablePuzzle._id === completedGame.puzzle._id) {
+							console.log('User has completed puzzle ' + availablePuzzle.uid);
+
 							valid = false;
 							break;
 						}
 					}
 
 					if (valid) {
+						console.log('User has not completed puzzle ' + availablePuzzle.uid);
+
 						puzzleDoc = availablePuzzle;
 						break;
 					}
